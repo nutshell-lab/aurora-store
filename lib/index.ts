@@ -6,24 +6,24 @@ import Knex from 'knex'
 
 interface Connector<T> {
   kind?: string
-  validate?: Function
+  validate?: (data: any) => any
   idField?: keyof T | 'id'
 }
 
 type Store<T> = {
   db?: Function
-  idField?: keyof T | 'id'
+  idField?: keyof T
   tableName?: string
-  validate?: Function
-  findIn?: Function
-  findAll?: Function
-  find?: Function
-  put?: Function
-  update?: Function
-  create?: Function
-  findOrCreate?: Function
-  remove?: Function
-  truncate?: Function
+  validate?: (data: any) => any
+  findIn?: (field: keyof T, values: any) => Promise<T[]>
+  findAll?: (filters?: object) => Promise<T[]>
+  find?: (filters: object) => Promise<T>
+  put?: (obj: T) => Promise<T>
+  update?: (obj: T) => Promise<T>
+  create?: (obj: T) => Promise<T>
+  findOrCreate?: (obj: T) => Promise<T>
+  remove?: (filters: object) => Promise<T>
+  truncate?: ({ force: boolean }) => Promise<void>
   knexClient?: () => Promise<Knex>
 }
 
@@ -36,10 +36,10 @@ const throwBadArgument = args =>
     )}`
   )
 
-export default <T>({ kind, idField = 'id', validate = (x: any) => x }: Connector<T>): Store<T> => {
+export default <T>({ kind, idField = 'id', validate = (data: any) => data }: Connector<T>): Store<T> => {
   const store: Store<T> = {
     tableName: kind,
-    idField: idField,
+    idField: idField as keyof T,
     validate: validate
   }
 
@@ -93,7 +93,7 @@ export default <T>({ kind, idField = 'id', validate = (x: any) => x }: Connector
 
   store.findOrCreate = async (data) => {
     const id = data[store.idField] || throwBadArgument(data)
-    const existing = await store.find(id)
+    const existing = await store.find({ idField: id })
     const entity = existing || (await store.create(data))
     return store.validate(entity)
   }
@@ -106,7 +106,7 @@ export default <T>({ kind, idField = 'id', validate = (x: any) => x }: Connector
   }
 
   store.truncate = async ({ force = false }) => {
-    const notEmpty = await store.findAll().length > 0
+    const notEmpty = (await store.findAll()).length > 0
     if(notEmpty && !force)
       throwError('OPERATION_REJECTED', `Cannot truncate table ${store.tableName} without force mode. Override with { force: true } param.`)
     return connect().then(db => db(store.tableName).truncate())
