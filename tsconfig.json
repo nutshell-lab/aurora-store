@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+      "module": "CommonJS",
+      "noImplicitAny": false,
+      "removeComments": true,
+      "preserveConstEnums": true,
+      "declaration": true,
+      "outDir": "dist/",
+      "sourceMap": true,
+      "esModuleInterop": true
+  },
+  "include": [
+      "lib/**/*.ts"
+  ]
+}

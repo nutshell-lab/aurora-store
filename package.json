@@ -1,0 +1,45 @@
+{
+  "name": "@nutshelllab/aurora-store",
+  "version": "0.0.0",
+  "description": "Encapsulate a nutshell connector to connect to a remote Aurora Postgres or a local Postgresdb",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "ava"
+  },
+  "keywords": [
+    "postgresql",
+    "aurora",
+    "connector",
+    "nutshell"
+  ],
+  "author": "nutshell",
+  "license": "ISC",
+  "dependencies": {
+    "@nutshelllab/ferrors": "^0.0.1-1",
+    "@types/knex": "^0.16.1",
+    "@types/ramda": "^0.27.6",
+    "@types/webpack": "^4.41.17",
+    "@types/webpack-env": "^1.15.2",
+    "knex": "^0.21.1",
+    "pg": "^8.2.1",
+    "ramda": "^0.27.0"
+  },
+  "devDependencies": {
+    "ava": "^3.9.0",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.5"
+  },
+  "ava": {
+    "concurrency": 5,
+    "failFast": true,
+    "extensions": [
+      "ts"
+    ],
+    "files": [
+      "lib/**/*.spec.ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ]
+  }
+}
