@@ -30,15 +30,17 @@ const connectToDb = (options?: Knex.Config) =>
     ...options
   })
 
-
 const migrate = async (connexion: Knex) => {
   return connexion.migrate
     .latest({ migrationSource })
-    .then(response => console.log('[knex]', 'migrations done', { response }))
+    .then(([latestIndex, done]) => console.log(`
+      [knex] Current migration level : ${latestIndex}
+      [knex] ${done.length} migrations have been done right now.
+    `))
     .catch(error => console.log('[knex]', 'migrations error', { error }))
 }
 
-const migrations = Promise.resolve().then(() => migrate(connectToDb()))
+const migrations = migrate(connectToDb())
 
 export default (options?: Knex.Config) =>
   Promise.resolve(migrations).then(() => connectToDb(options))

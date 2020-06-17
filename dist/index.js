@@ -106,10 +106,6 @@ exports["default"] = (function (_a) {
                                 return [2, client(kind)
                                         .where(idField, data[idField])
                                         .update(validate(data), '*')
-                                        .then(function (x) {
-                                        console.log('HELLO HELLO', x);
-                                        return x;
-                                    })
                                         .then(function (x) { return (Array.isArray(x) ? x[0] : null); })];
                             });
                         }); },
