@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "description": "Encapsulate a nutshell connector to connect to a remote Aurora Postgres or a local Postgresdb",
   "main": "dist/index.js",
+  "types": "dist/idnex.d.ts",
   "scripts": {
     "test": "ava"
   },
