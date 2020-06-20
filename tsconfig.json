@@ -10,6 +10,11 @@
       "esModuleInterop": true
   },
   "include": [
-      "lib/**/*.ts"
+    "lib/**/*.ts"
+  ],
+  "exclude": [
+    "dist/",
+    "__fixtures",
+    "**/*.spec.ts"
   ]
 }

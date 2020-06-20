@@ -2,8 +2,9 @@ import test from 'ava'
 import AuroraStore from './index'
 import '../__fixtures__/initialize-env'
 
-const movie = { id: 'm0', name: 'star wars' }
-const movieStore = AuroraStore({ kind: 'movies' })
+type Movie = { id: string, name: string }
+const movie: Movie = { id: 'm0', name: 'star wars' }
+const movieStore = AuroraStore<Movie>({ kind: 'movies' })
 const rand = (max: number) => Math.floor(Math.random() * Math.floor(max))
 
 
@@ -16,7 +17,7 @@ test.serial('A value can be inserted', async t => {
 
 test.serial('Failure to provide data will result in error', async t => {
   await t.throwsAsync(
-    () => movieStore.put())
+    () => movieStore.put({} as Movie))
 })
 
 test.serial('A value can be put, it will be created if it does not exist', async t => {
@@ -80,7 +81,7 @@ test.serial('A value can be deleted', async t => {
 
 test.serial('You MUST use force mode to truncate a table', async t => {
   await t.throwsAsync(async () => {
-    await movieStore.truncate()
+    await movieStore.truncate({ force: false })
   })
 })
 

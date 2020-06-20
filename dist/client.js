@@ -53,8 +53,25 @@ exports.__esModule = true;
 var knex_1 = __importDefault(require("knex"));
 var fs_1 = __importDefault(require("fs"));
 var path_1 = __importDefault(require("path"));
-var context = fs_1["default"].readdirSync(path_1["default"].join(__dirname, '../../migrations'));
-console.log(context);
+var knexfile_1 = require("../knexfile");
+var context = fs_1["default"].readdirSync(path_1["default"].join(__dirname, '../', knexfile_1.migrations.directory));
+var envSwitch = {
+    local: {
+        host: process.env.LOCAL_DB_HOST,
+        port: Number.parseInt(process.env.LOCAL_DB_PORT),
+        database: process.env.LOCAL_DB_NAME,
+        user: process.env.LOCAL_DB_USER,
+        password: process.env.LOCAL_DB_PASSWD
+    },
+    "default": {
+        host: process.env.DB_HOST,
+        port: Number.parseInt(process.env.DB_PORT),
+        database: process.env.DB_NAME,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWD
+    }
+};
+var dbEnv = function () { return process.env.SLS_STAGE === 'local' ? envSwitch.local : envSwitch["default"]; };
 var migrationSource = {
     getMigrations: function () {
         return Promise.resolve(context);
@@ -63,26 +80,29 @@ var migrationSource = {
         return migration;
     },
     getMigration: function (migration) {
-        return require(path_1["default"].join(__dirname, migration));
+        return require(path_1["default"].join(__dirname, '../', knexfile_1.migrations.directory, migration));
     }
 };
 var connectToDb = function (options) {
     return knex_1["default"](__assign({ client: 'pg', connection: {
-            host: process.env.DB_HOST,
-            port: Number.parseInt(process.env.DB_PORT),
-            database: process.env.DB_NAME,
-            user: process.env.DB_USER,
-            password: process.env.DB_PASSWD
+            host: dbEnv().host,
+            port: dbEnv().port,
+            database: dbEnv().database,
+            user: dbEnv().user,
+            password: dbEnv().password
         } }, options));
 };
 var migrate = function (connexion) { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
         return [2, connexion.migrate
                 .latest({ migrationSource: migrationSource })
-                .then(function (response) { return console.log('[knex]', 'migrations done', { response: response }); })["catch"](function (error) { return console.log('[knex]', 'migrations error', { error: error }); })];
+                .then(function (_a) {
+                var latestIndex = _a[0], done = _a[1];
+                return console.log("\n      [knex] Current migration level : " + latestIndex + "\n      [knex] " + done.length + " migrations have been done right now.\n    ");
+            })["catch"](function (error) { return console.log('[knex]', 'migrations error', { error: error }); })];
     });
 }); };
-var migrations = Promise.resolve().then(function () { return migrate(connectToDb()); });
+var migrations = migrate(connectToDb());
 exports["default"] = (function (options) {
     return Promise.resolve(migrations).then(function () { return connectToDb(options); });
 });

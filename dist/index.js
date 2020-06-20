@@ -42,99 +42,147 @@ exports.__esModule = true;
 var ramda_1 = require("ramda");
 var ferrors_1 = require("@nutshelllab/ferrors");
 var client_1 = __importDefault(require("./client"));
+var printList = function (list) {
+    if (list === void 0) { list = []; }
+    return list.join(' ');
+};
+var throwBadArgument = function (args) {
+    return ferrors_1.throwError('INVALID_ARGUMENT', "function was badly called with arguments " + printList(args));
+};
 exports["default"] = (function (_a) {
-    var kind = _a.kind, validate = _a.validate, idField = _a.idField;
-    return function () { return __awaiter(void 0, void 0, void 0, function () {
-        var client, store;
+    var kind = _a.kind, _b = _a.idField, idField = _b === void 0 ? 'id' : _b, _c = _a.validate, validate = _c === void 0 ? function (data) { return data; } : _c;
+    var store = {
+        tableName: kind,
+        idField: idField,
+        validate: validate
+    };
+    store.findIn = function (field, values) { return __awaiter(void 0, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            if (ramda_1.isEmpty(field) || ramda_1.isEmpty(values))
+                throwBadArgument([field, values]);
+            return [2, client_1["default"]().then(function (db) { return db(store.tableName).whereIn(field, values); })];
+        });
+    }); };
+    store.findAll = function (filters) {
+        if (filters === void 0) { filters = {}; }
+        return __awaiter(void 0, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2, client_1["default"]().then(function (db) { return db(store.tableName).where(filters); })];
+            });
+        });
+    };
+    store.find = function (filters) { return __awaiter(void 0, void 0, void 0, function () {
+        var existing;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4, client_1["default"]()["catch"](ferrors_1.reThrow('DB_CONNECTION_ERROR'))];
+                case 0: return [4, client_1["default"]().then(function (db) { return db(store.tableName)
+                        .where(filters)
+                        .returning('*')
+                        .first(); })];
                 case 1:
-                    client = _a.sent();
-                    store = {
-                        create: function (data) { return __awaiter(void 0, void 0, void 0, function () {
-                            return __generator(this, function (_a) {
-                                if (ramda_1.isEmpty(data))
-                                    ferrors_1.throwError('INVALID_ARGUMENT', 'Cannot create, provided data is empty');
-                                return [2, client(kind)
-                                        .insert(validate(data))
-                                        .returning('*')
-                                        .then(function (x) { return (Array.isArray(x) ? x[0] : null); })];
-                            });
-                        }); },
-                        find: function (id) { return __awaiter(void 0, void 0, void 0, function () {
-                            var existing;
-                            return __generator(this, function (_a) {
-                                switch (_a.label) {
-                                    case 0: return [4, client(kind)
-                                            .returning('*')
-                                            .first()];
-                                    case 1:
-                                        existing = _a.sent();
-                                        return [2, existing
-                                                ? validate(existing)
-                                                : ferrors_1.throwError('ORG_NOT_FOUND', "could not found entity " + id + " in " + kind)];
-                                }
-                            });
-                        }); },
-                        findOrCreate: function (data) { return __awaiter(void 0, void 0, void 0, function () {
-                            var id, existing, entity, _a;
-                            return __generator(this, function (_b) {
-                                switch (_b.label) {
-                                    case 0:
-                                        id = data[idField] ||
-                                            ferrors_1.throwError('INVALID_ARGUMENT', "Cannot find or create entity : entity has no " + idField + " field, try pass optional idField parameter.");
-                                        return [4, store.find(id)];
-                                    case 1:
-                                        existing = _b.sent();
-                                        _a = existing;
-                                        if (_a) return [3, 3];
-                                        return [4, store.create(data)];
-                                    case 2:
-                                        _a = (_b.sent());
-                                        _b.label = 3;
-                                    case 3:
-                                        entity = _a;
-                                        return [2, validate(entity)];
-                                }
-                            });
-                        }); },
-                        update: function (data) { return __awaiter(void 0, void 0, void 0, function () {
-                            return __generator(this, function (_a) {
-                                if (ramda_1.isEmpty(data))
-                                    ferrors_1.throwError('INVALID_ARGUMENT', 'Cannot update, provided data is empty');
-                                return [2, client(kind)
-                                        .where(idField, data[idField])
-                                        .update(validate(data), '*')
-                                        .then(function (x) { return (Array.isArray(x) ? x[0] : null); })];
-                            });
-                        }); },
-                        updateOrCreate: function (data) { return __awaiter(void 0, void 0, void 0, function () {
-                            var result, _a;
-                            return __generator(this, function (_b) {
-                                switch (_b.label) {
-                                    case 0:
-                                        if (ramda_1.isEmpty(data))
-                                            ferrors_1.throwError('INVALID_ARGUMENT', 'Cannot updateOrCreate, provided data is empty');
-                                        return [4, store.update(data)];
-                                    case 1:
-                                        _a = (_b.sent());
-                                        if (_a) return [3, 3];
-                                        return [4, store.create(data)];
-                                    case 2:
-                                        _a = (_b.sent());
-                                        _b.label = 3;
-                                    case 3:
-                                        result = _a;
-                                        console.log('result is', result);
-                                        return [2, validate(result)];
-                                }
-                            });
-                        }); }
-                    };
-                    return [2, Object.freeze(store)];
+                    existing = _a.sent();
+                    return [2, existing
+                            ? store.validate(existing)
+                            : throwBadArgument(filters)];
             }
         });
     }); };
+    store.put = function (data) { return __awaiter(void 0, void 0, void 0, function () {
+        var result, _a;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    if (ramda_1.isEmpty(data))
+                        throwBadArgument(data);
+                    return [4, store.update(data)];
+                case 1:
+                    _a = (_b.sent());
+                    if (_a) return [3, 3];
+                    return [4, store.create(data)];
+                case 2:
+                    _a = (_b.sent());
+                    _b.label = 3;
+                case 3:
+                    result = _a;
+                    return [2, store.validate(result)];
+            }
+        });
+    }); };
+    store.update = function (data) { return __awaiter(void 0, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            if (ramda_1.isEmpty(data))
+                throwBadArgument(data);
+            return [2, client_1["default"]().then(function (db) { return __awaiter(void 0, void 0, void 0, function () {
+                    return __generator(this, function (_a) {
+                        return [2, db(store.tableName)
+                                .where(store.idField, data[store.idField])
+                                .update(store.validate(data), '*')
+                                .then(function (x) { return (Array.isArray(x) ? x[0] : null); })];
+                    });
+                }); })];
+        });
+    }); };
+    store.create = function (data) { return __awaiter(void 0, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            if (ramda_1.isEmpty(data))
+                throwBadArgument(data);
+            return [2, client_1["default"]().then(function (db) { return db(store.tableName)
+                    .insert(store.validate(data))
+                    .returning('*')
+                    .then(function (x) { return (Array.isArray(x) ? x[0] : null); }); })];
+        });
+    }); };
+    store.findOrCreate = function (data) { return __awaiter(void 0, void 0, void 0, function () {
+        var id, existing, entity, _a;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    id = data[store.idField] || throwBadArgument(data);
+                    return [4, store.find({ idField: id })];
+                case 1:
+                    existing = _b.sent();
+                    _a = existing;
+                    if (_a) return [3, 3];
+                    return [4, store.create(data)];
+                case 2:
+                    _a = (_b.sent());
+                    _b.label = 3;
+                case 3:
+                    entity = _a;
+                    return [2, store.validate(entity)];
+            }
+        });
+    }); };
+    store.remove = function (filters) { return __awaiter(void 0, void 0, void 0, function () {
+        var existing;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4, store.find(filters)];
+                case 1:
+                    existing = _a.sent();
+                    return [2, existing
+                            ? client_1["default"]().then(function (db) { return db(store.tableName).where(filters)["delete"](); })
+                            : store.validate(existing)];
+            }
+        });
+    }); };
+    store.truncate = function (_a) {
+        var _b = _a.force, force = _b === void 0 ? false : _b;
+        return __awaiter(void 0, void 0, void 0, function () {
+            var notEmpty;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0: return [4, store.findAll()];
+                    case 1:
+                        notEmpty = (_c.sent()).length > 0;
+                        if (notEmpty && !force)
+                            ferrors_1.throwError('OPERATION_REJECTED', "Cannot truncate table " + store.tableName + " without force mode. Override with { force: true } param.");
+                        return [2, client_1["default"]().then(function (db) { return db(store.tableName).truncate(); })];
+                }
+            });
+        });
+    };
+    store.knexClient = client_1["default"];
+    return store;
 });
 //# sourceMappingURL=index.js.map
