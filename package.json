@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "types": "dist/idnex.d.ts",
   "scripts": {
-    "test": "DB_HOST='127.0.0.1' DB_PORT='5432' DB_NAME='aurora-store-test' DB_USER='pguser' DB_PASSWD='pguser' ava"
+    "test": "SLS_STAGE=local LOCAL_DB_HOST='127.0.0.1' LOCAL_DB_PORT='5432' LOCAL_DB_NAME='aurora-store-test' LOCAL_DB_USER='pguser' LOCAL_DB_PASSWD='pguser' ava"
   },
   "keywords": [
     "postgresql",
