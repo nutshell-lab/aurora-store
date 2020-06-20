@@ -22,5 +22,6 @@ declare type Store<T> = {
     }) => Promise<void>;
     knexClient?: () => Promise<Knex>;
 };
+export { configure } from './config';
 declare const _default: <T>({ kind, idField, validate }: Connector<T>) => Store<T>;
 export default _default;

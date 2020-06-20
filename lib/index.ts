@@ -36,6 +36,8 @@ const throwBadArgument = args =>
     )}`
   )
 
+export { configure } from './config'
+
 export default <T>({ kind, idField = 'id', validate = (data: any) => data }: Connector<T>): Store<T> => {
   const store: Store<T> = {
     tableName: kind,

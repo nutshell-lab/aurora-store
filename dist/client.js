@@ -53,8 +53,8 @@ exports.__esModule = true;
 var knex_1 = __importDefault(require("knex"));
 var fs_1 = __importDefault(require("fs"));
 var path_1 = __importDefault(require("path"));
-var knexfile_1 = require("../knexfile");
-var context = fs_1["default"].readdirSync(path_1["default"].join(__dirname, '../', knexfile_1.migrations.directory));
+var config_1 = require("./config");
+var context = fs_1["default"].readdirSync(config_1.config().migrationsFolder);
 var envSwitch = {
     local: {
         host: process.env.LOCAL_DB_HOST,
@@ -80,7 +80,7 @@ var migrationSource = {
         return migration;
     },
     getMigration: function (migration) {
-        return require(path_1["default"].join(__dirname, '../', knexfile_1.migrations.directory, migration));
+        return require(path_1["default"].join(config_1.config().migrationsFolder, migration));
     }
 };
 var connectToDb = function (options) {

@@ -1,9 +1,7 @@
 import Knex from 'knex'
 import fs from 'fs'
 import path from 'path'
-import { migrations as config } from '../knexfile'
-
-const context = fs.readdirSync(path.join(__dirname, '../', config.directory))
+import { config } from './config'
 
 const envSwitch = {
   local: {
@@ -24,7 +22,10 @@ const envSwitch = {
 
 const dbEnv = () => process.env.SLS_STAGE === 'local' ? envSwitch.local : envSwitch.default
 
-const migrationSource = {
+const migrationSource = () => {
+  const context = fs.readdirSync(config().migrationsFolder)
+  
+  return {
     getMigrations() {
       return Promise.resolve(context)
     },
@@ -32,8 +33,9 @@ const migrationSource = {
       return migration
     },
     getMigration(migration: string) {
-      return require(path.join(__dirname, '../', config.directory, migration))
+      return require(path.join(config().migrationsFolder, migration))
     }
+  }
 }
 
 const connectToDb = (options?: Knex.Config) =>
@@ -48,10 +50,13 @@ const connectToDb = (options?: Knex.Config) =>
     },
     ...options
   })
+  
+let migrations = Promise.resolve()
 
-const migrate = async (connexion: Knex) => {
-  return connexion.migrate
-    .latest({ migrationSource })
+export const migrate = async () => {
+  if(!config().migrationsFolder) throw 'Module has not been configured. Please call configure method with migrationsFolder argument'
+  migrations = connectToDb().migrate
+    .latest({ migrationSource: migrationSource() })
     .then(([latestIndex, done]) => console.log(`
       [knex] Current migration level : ${latestIndex}
       [knex] ${done.length} migrations have been done right now.
@@ -59,7 +64,5 @@ const migrate = async (connexion: Knex) => {
     .catch(error => console.log('[knex]', 'migrations error', { error }))
 }
 
-const migrations = migrate(connectToDb())
-
 export default (options?: Knex.Config) =>
-  Promise.resolve(migrations).then(() => connectToDb(options))
+  migrations.then(() => connectToDb(options))

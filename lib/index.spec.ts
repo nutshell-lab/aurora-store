@@ -1,6 +1,11 @@
 import test from 'ava'
-import AuroraStore from './index'
+import { configure, default as AuroraStore } from './index'
 import '../__fixtures__/initialize-env'
+import path from 'path'
+
+configure({
+  migrationsFolder: path.join(__dirname, '../__fixtures__/migrations')
+})
 
 type Movie = { id: string, name: string }
 const movie: Movie = { id: 'm0', name: 'star wars' }
