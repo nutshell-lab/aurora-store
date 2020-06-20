@@ -8,6 +8,7 @@
     "dist/"
   ],
   "scripts": {
+    "build": "tsc",
     "test": "SLS_STAGE=local LOCAL_DB_HOST='127.0.0.1' LOCAL_DB_PORT='5432' LOCAL_DB_NAME='aurora-store-test' LOCAL_DB_USER='pguser' LOCAL_DB_PASSWD='pguser' ava"
   },
   "keywords": [
