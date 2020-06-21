@@ -1,3 +1,4 @@
+import { migrate } from './client'
 import Knex from 'knex'
 
 type NutshellAuroraStoreConfig = {
@@ -17,6 +18,7 @@ let activeConfig: NutshellAuroraStoreConfig = {
 
 export const configure = (options: NutshellAuroraStoreConfigParameters) => {
   activeConfig = { ...activeConfig, ...options }
+  migrate()
 }
 
 export const config = (): NutshellAuroraStoreConfig => ({ ...activeConfig }) // Giving consummer a copy of the object because to avoid Singleton effects
