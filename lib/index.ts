@@ -65,7 +65,7 @@ export default <T>({ kind, idField = 'id', validate = (data: any) => data }: Con
 
     return existing
       ? store.validate(existing)
-      : throwBadArgument(Object.entries(filters))
+      : throwError('NOT_FOUND', `Entity could not be found with filters ${Object.values(filters)}`, filters)
   }
 
   store.put = async (data) => {
