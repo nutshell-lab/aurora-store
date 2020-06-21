@@ -57,11 +57,11 @@ export default <T>({ kind, idField = 'id', validate = (data: any) => data }: Con
 
   store.find = async (filters) => {
     console.log('FIND WILL NOW PROCEED')
-    await connect().then(db => console.log('db is', db))
     const existing = await connect().then(db => db(store.tableName)
       .where(filters)
       .returning('*')
       .first())
+      .catch(err => console.error('Something happen while proceeding request', err))
 
     return existing
       ? store.validate(existing)

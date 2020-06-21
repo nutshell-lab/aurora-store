@@ -20,7 +20,19 @@ const envSwitch = {
   }
 }
 
-const dbEnv = () => process.env.SLS_STAGE === 'local' ? envSwitch.local : envSwitch.default
+const dbEnv = process.env.SLS_STAGE === 'local' ? envSwitch.local : envSwitch.default
+
+let configuration: Knex.Config = {
+  client: 'pg',
+  connection: {
+    host: dbEnv.host,
+    port: dbEnv.port,
+    database: dbEnv.database,
+    user: dbEnv.user,
+    password: dbEnv.password
+  }
+}
+
 
 const migrationSource = () => {
   const context = fs.readdirSync(config().migrationsFolder)
@@ -39,17 +51,7 @@ const migrationSource = () => {
 }
 
 const connectToDb = (options?: Knex.Config) => {
-  const configuration = {
-    client: 'pg',
-    connection: {
-      host: dbEnv().host,
-      port: dbEnv().port,
-      database: dbEnv().database,
-      user: dbEnv().user,
-      password: dbEnv().password
-    },
-    ...options
-  }
+  configuration = { ...configuration, ...options }
   console.log('Following configuration will be used', configuration)
   return Knex(configuration)
 }
