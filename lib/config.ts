@@ -1,15 +1,19 @@
 import { migrate } from './client'
+import Knex from 'knex'
 
 type NutshellAuroraStoreConfig = {
   migrationsFolder: string
+  migrationSource: Knex.MigrationSource<any>
 }
 
 type NutshellAuroraStoreConfigParameters = {
   migrationsFolder?: string
+  migrationSource?: Knex.MigrationSource<any>
 }
 
 let activeConfig: NutshellAuroraStoreConfig = {
-  migrationsFolder: null
+  migrationsFolder: null,
+  migrationSource: null
 }
 
 export const configure = (options: NutshellAuroraStoreConfigParameters) => {

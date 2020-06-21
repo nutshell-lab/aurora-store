@@ -56,9 +56,9 @@ const connectToDb = (options?: Knex.Config) => {
 let migrations = Promise.resolve()
 
 export const migrate = async () => {
-  if(!config().migrationsFolder) throw 'Module has not been configured. Please call configure method with migrationsFolder argument'
+  if(!config().migrationsFolder && !config().migrationSource) throw 'Module has not been configured. Please call configure method with migrationsFolder argument'
   migrations = connectToDb().migrate
-    .latest({ migrationSource: migrationSource() })
+    .latest({ migrationSource: config().migrationsFolder ? migrationSource() : config().migrationSource })
     .then(([latestIndex, done]) => console.log(`
       [knex] Current migration level : ${latestIndex}
       [knex] ${done.length} migrations have been done right now.
