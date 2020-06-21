@@ -65,18 +65,18 @@ export default <T>({ kind, idField = 'id', validate = (data: any) => data }: Con
 
     return existing
       ? store.validate(existing)
-      : throwBadArgument(filters)
+      : throwBadArgument([filters])
   }
 
   store.put = async (data) => {
-    if (isEmpty(data)) throwBadArgument(data)
+    if (isEmpty(data)) throwBadArgument([data])
 
     const result = (await store.update(data)) || (await store.create(data))
     return store.validate(result)
   }
 
   store.update = async (data) => {
-    if (isEmpty(data)) throwBadArgument(data)
+    if (isEmpty(data)) throwBadArgument([data])
 
     return connect().then(async db =>
       db(store.tableName)
@@ -87,7 +87,7 @@ export default <T>({ kind, idField = 'id', validate = (data: any) => data }: Con
   }
 
   store.create = async (data) => {
-    if (isEmpty(data)) throwBadArgument(data)
+    if (isEmpty(data)) throwBadArgument([data])
 
     return connect().then(db => db(store.tableName)
       .insert(store.validate(data))
@@ -96,7 +96,7 @@ export default <T>({ kind, idField = 'id', validate = (data: any) => data }: Con
   }
 
   store.findOrCreate = async (data) => {
-    const id = data[store.idField] || throwBadArgument(data)
+    const id = data[store.idField] || throwBadArgument([data])
     const existing = await store.find({ idField: id })
     const entity = existing || (await store.create(data))
     return store.validate(entity)
