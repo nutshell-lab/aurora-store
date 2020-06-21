@@ -38,8 +38,8 @@ const migrationSource = () => {
   }
 }
 
-const connectToDb = (options?: Knex.Config) =>
-  Knex({
+const connectToDb = (options?: Knex.Config) => {
+  const configuration = {
     client: 'pg',
     connection: {
       host: dbEnv().host,
@@ -49,8 +49,10 @@ const connectToDb = (options?: Knex.Config) =>
       password: dbEnv().password
     },
     ...options
-  })
-  
+  }
+  console.log('Following configuration will be used', configuration)
+  return Knex(configuration)
+}
 let migrations = Promise.resolve()
 
 export const migrate = async () => {
