@@ -1,6 +1,6 @@
 
 import { isEmpty } from 'ramda'
-import { throwError } from '@nutshelllab/ferrors'
+import { throwError, on } from '@nutshelllab/ferrors'
 import connect from './client'
 import Knex from 'knex'
 
@@ -97,9 +97,9 @@ export default <T>({ kind, idField = 'id', validate = (data: any) => data }: Con
 
   store.findOrCreate = async (data) => {
     const id = data[store.idField] || throwBadArgument(Object.entries(data))
-    const existing = await store.find({ idField: id })
-    const entity = existing || (await store.create(data))
-    return store.validate(entity)
+    return store.find({ idField: id })
+      .catch(on('NOT_FOUND', () => store.create(data)))
+      .then(store.validate)
   }
 
   store.remove = async (filters) => {
