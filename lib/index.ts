@@ -7,12 +7,12 @@ import Knex from 'knex'
 interface Connector<T> {
   kind?: string
   validate?: (data: any) => any
-  idField?: keyof T | 'id'
+  idField?: (keyof T)[] | ['id']
 }
 
 type Store<T> = {
   db?: Function
-  idField?: keyof T
+  idField?: (keyof T)[]
   tableName?: string
   validate?: (data: any) => any
   findIn?: (field: keyof T, values: any) => Promise<T[]>
@@ -21,6 +21,7 @@ type Store<T> = {
   put?: (obj: T) => Promise<T>
   update?: (obj: T) => Promise<T>
   create?: (obj: T) => Promise<T>
+  applyPk?: (client: Knex.QueryBuilder, pks: (keyof T)[], obj: T) => Knex.QueryBuilder
   findOrCreate?: (obj: T) => Promise<T>
   remove?: (filters: object) => Promise<T>
   truncate?: ({ force: boolean }) => Promise<void>
@@ -38,12 +39,18 @@ const throwBadArgument = args =>
 
 export { configure } from './config'
 
-export default <T>({ kind, idField = 'id', validate = (data: any) => data }: Connector<T>): Store<T> => {
+export default <T>({ kind, idField = [ 'id' ], validate = (data: any) => data }: Connector<T>): Store<T> => {
   const store: Store<T> = {
     tableName: kind,
-    idField: idField as keyof T,
+    idField: idField as (keyof T)[],
     validate: validate
   }
+
+  store.applyPk = (client, pks, data) =>
+    pks.reduce(
+      (client, key) => client.where(key, data[key]),
+      client
+    )
 
   store.findIn = async (field, values) => {
     if (isEmpty(field) || isEmpty(values)) throwBadArgument([field, values])
@@ -56,7 +63,6 @@ export default <T>({ kind, idField = 'id', validate = (data: any) => data }: Con
   }
 
   store.find = async (filters) => {
-    console.log('FIND WILL NOW PROCEED')
     const existing = await connect().then(db => db(store.tableName)
       .where(filters)
       .returning('*')
@@ -79,8 +85,7 @@ export default <T>({ kind, idField = 'id', validate = (data: any) => data }: Con
     if (isEmpty(data)) throwBadArgument(Object.entries(data))
 
     return connect().then(async db =>
-      db(store.tableName)
-        .where(store.idField, data[store.idField])
+      store.applyPk(db(store.tableName), store.idField, data)
         .update(store.validate(data), '*')
         .then(x => (Array.isArray(x) ? x[0] : null)) // Knex forbid using first on update queries
     )
@@ -96,8 +101,8 @@ export default <T>({ kind, idField = 'id', validate = (data: any) => data }: Con
   }
 
   store.findOrCreate = async (data) => {
-    const id = data[store.idField] || throwBadArgument(Object.entries(data))
-    return store.find({ idField: id })
+    return connect()
+      .then(db => store.applyPk(db(store.tableName), store.idField, data))
       .catch(on('NOT_FOUND', () => store.create(data)))
       .then(store.validate)
   }
