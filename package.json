@@ -1,6 +1,6 @@
 {
   "name": "@nutshelllab/aurora-store",
-  "version": "0.0.1-15",
+  "version": "0.0.1-16",
   "description": "Encapsulate a nutshell connector to connect to a remote Aurora Postgres or a local Postgresdb",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
