@@ -22,7 +22,7 @@ type Store<T> = {
   update?: (obj: T) => Promise<T>
   create?: (obj: T) => Promise<T>
   applyPk?: (client: Knex.QueryBuilder, pks: (keyof T)[], obj: T) => Knex.QueryBuilder
-  findOrCreate?: (obj: T) => Promise<T>
+  findOrCreate?: (filters: object, obj: T) => Promise<T>
   remove?: (filters: object) => Promise<T>
   truncate?: ({ force: boolean }) => Promise<void>
   knexClient?: () => Promise<Knex>
@@ -100,9 +100,8 @@ export default <T>({ kind, idField = [ 'id' ], validate = (data: any) => data }:
       .then(x => (Array.isArray(x) ? x[0] : null))) // Knex forbid using first on insert queries
   }
 
-  store.findOrCreate = async (data) => {
-    return connect()
-      .then(db => store.applyPk(db(store.tableName), store.idField, data))
+  store.findOrCreate = async (filters, data) => {
+    return store.find(filters)
       .catch(on('NOT_FOUND', () => store.create(data)))
       .then(store.validate)
   }
