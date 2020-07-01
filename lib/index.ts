@@ -67,7 +67,6 @@ export default <T>({ kind, idField = [ 'id' ], validate = (data: any) => data }:
       .where(filters)
       .returning('*')
       .first())
-      .catch(err => console.error('Something happen while proceeding request', err))
 
     return existing
       ? store.validate(existing)
