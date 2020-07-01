@@ -85,7 +85,7 @@ export default <T>({ kind, idField = [ 'id' ], validate = (data: any) => data }:
 
     return connect().then(async db =>
       store.applyPk(db(store.tableName), store.idField, data)
-        .update(store.validate(data), '*')
+        .update(store.validate(data), ['*'])
         .then(x => (Array.isArray(x) ? x[0] : null)) // Knex forbid using first on update queries
     )
   }
