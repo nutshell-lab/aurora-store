@@ -25,7 +25,7 @@ test.serial('Failure to provide data will result in error', async t => {
     () => movieStore.put({} as Movie))
 })
 
-test.serial('A value can be put, it will be created if it does not exist', async t => {
+test('A value can be put, it will be created if it does not exist', async t => {
   let result
   await t.notThrowsAsync(async () => {
     result = await movieStore.put(movie)
@@ -36,6 +36,7 @@ test.serial('A value can be put, it will be created if it does not exist', async
 test.serial('A value can be put, it will ecrase previous data if already existing', async t => {
   let result
   await t.notThrowsAsync(async () => {
+    await movieStore.put({ ...movie, name: 'V for Vendetta' })
     result = await movieStore.put({ ...movie, name: 'V for Vendetta' })
   })
   t.is(result.name, 'V for Vendetta')
