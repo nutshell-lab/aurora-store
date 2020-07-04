@@ -80,15 +80,15 @@ idField | Handle PK with this option as an array of columns names | ['id']
 
 
 ### Features
-* [findIn](https://github.com/nutshell-lab/aurora-store#findIn)
-* [findAll](https://github.com/nutshell-lab/aurora-store#findAll)
-* [find](https://github.com/nutshell-lab/aurora-store#find)
-* [put](https://github.com/nutshell-lab/aurora-store#put)
-* [update](https://github.com/nutshell-lab/aurora-store#update)
-* [create](https://github.com/nutshell-lab/aurora-store#create)
-* [findOrCreate](https://github.com/nutshell-lab/aurora-store#findOrCreate)
-* [remove](https://github.com/nutshell-lab/aurora-store#remove)
-* [truncate](https://github.com/nutshell-lab/aurora-store#truncate)
+* [findIn](https://github.com/nutshell-lab/aurora-store#findInfield-values)
+* [findAll](https://github.com/nutshell-lab/aurora-store#findAllfilters)
+* [find](https://github.com/nutshell-lab/aurora-store#findfilters)
+* [put](https://github.com/nutshell-lab/aurora-store#putdata)
+* [update](https://github.com/nutshell-lab/aurora-store#updatedata)
+* [create](https://github.com/nutshell-lab/aurora-store#createdata)
+* [findOrCreate](https://github.com/nutshell-lab/aurora-store#findOrCreatefilters-data)
+* [remove](https://github.com/nutshell-lab/aurora-store#removefilters)
+* [truncate](https://github.com/nutshell-lab/aurora-store#truncateoptions)
 * [knexClient](https://github.com/nutshell-lab/aurora-store#knexClient)
 
 #### findIn(field, values)
@@ -149,7 +149,7 @@ Destroy all records with filters forever.
 store.remove({name: 'Black Windows'})
 ```
 
-#### truncate
+#### truncate(options)
 Destroy all records of a table forever. You must pass force attribute to true to execute this as a way to make it
 clear that you know what you're doing.
 
@@ -158,7 +158,7 @@ store.truncate() // won't work
 store.truncate({ force: true })
 ```
 
-#### knexClient
+#### knexClient()
 Obviously the point of using a relational database was to go beyond dynamo key-values restriction. This function gives you a Knex querybuilder. You can use that to manipulate any table in a sql-query manner :
 
 ```js
