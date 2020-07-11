@@ -50,15 +50,13 @@ const migrationSource = () => {
   }
 }
 
-const connectToDb = (options?: Knex.Config) => {
-  configuration = { ...configuration, ...options }
-  return Knex(configuration)
-}
+const client = Knex(configuration)
+
 let migrations = Promise.resolve()
 
 export const migrate = async () => {
   if(!config().migrationsFolder && !config().migrationSource) throw 'Module has not been configured. Please call configure method with migrationsFolder argument'
-  migrations = connectToDb().migrate
+  migrations = client.migrate
     .latest({ migrationSource: config().migrationsFolder ? migrationSource() : config().migrationSource })
     .then(([latestIndex, done]) => console.log(`
       [knex] Current migration level : ${latestIndex}
@@ -68,4 +66,4 @@ export const migrate = async () => {
 }
 
 export default (options?: Knex.Config) =>
-  migrations.then(() => connectToDb(options))
+  migrations.then(() => client)
