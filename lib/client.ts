@@ -52,7 +52,6 @@ const migrationSource = () => {
 
 const connectToDb = (options?: Knex.Config) => {
   configuration = { ...configuration, ...options }
-  console.log('Following configuration will be used', configuration)
   return Knex(configuration)
 }
 let migrations = Promise.resolve()
