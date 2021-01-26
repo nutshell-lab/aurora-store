@@ -8,6 +8,6 @@ configure({
   migrationsFolder: path.join(__dirname, '../__fixtures__/migrations')
 })
 
-test.serial('A connection can be made to a database', async t => {
+test.skip('A connection can be made to a database', async t => {
   await t.notThrowsAsync(connect().then(client => client('movies')))
 })
