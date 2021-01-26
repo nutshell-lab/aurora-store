@@ -30,6 +30,10 @@ let configuration: Knex.Config = {
     database: dbEnv.database,
     user: dbEnv.user,
     password: dbEnv.password
+  },
+  pool: {
+    min: 1,
+    max: 4
   }
 }
 
