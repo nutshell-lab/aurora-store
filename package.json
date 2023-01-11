@@ -30,7 +30,7 @@
     "@types/ramda": "^0.27.6",
     "@types/webpack": "^4.41.17",
     "@types/webpack-env": "^1.15.2",
-    "knex": "^0.21.1",
+    "knex": "^2.4.0",
     "pg": "^8.2.1",
     "ramda": "^0.27.0"
   },
